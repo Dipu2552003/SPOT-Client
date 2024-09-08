@@ -60,7 +60,7 @@ const Profileinlarge1 = () => {
 
 const Profileinsmall = () => {
   const handleLogOut = () => {
-    alert("heelo");
+    alert("logout successful");
     localStorage.removeItem("jwttokenloginuser");
     window.location.href = "/logout";
   };

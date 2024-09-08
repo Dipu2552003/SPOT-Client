@@ -43,23 +43,29 @@ const EditQuestion = (props) => {
   };
 
   const EditQuestionServer = function () {
-    // var textanswertopostvalue = $('.textanswertoedit').val();
-    // console.log("herllo", jwttoken, textanswertopostvalue);
     if (editQHeader !== "" || editQBody !== "") {
-      var qqtags = qtags;
-      qqtags += "";
-      var arraytags = qqtags.split(",");
+      const qqtags = qtags || ""; // Fallback to an empty string if qtags is null or undefined
+      const arraytags = qqtags.split(","); // Ensure qqtags is a string before splitting
       console.log(qid, qbody, jwttoken, arraytags, editQHeader);
       setanswerload("Please Wait For A Moment...");
+
       axios
         .post(
-          "https://askoverflow-server.vashishth-patel.repl.co/questionedit",
+          "http://localhost:5000/api/question/questionedit",
           {
             questionid: qid,
             body: qbody,
             jwttokenloginuser: jwttoken,
             tags: arraytags,
             header: qheader,
+          },
+          {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              jsonwebtoken: jwttoken,
+            },
+            withCredentials: true,
           }
         )
         .then(function (response) {
@@ -67,7 +73,7 @@ const EditQuestion = (props) => {
           window.location.replace("/question/" + qid);
         })
         .catch(function (err) {
-          console.log(err);
+          console.log("the error is " + err);
           window.alert("Something Went Wrong!!");
         });
     } else {

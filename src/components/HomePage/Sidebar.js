@@ -40,14 +40,14 @@ const Sidebar = ({ questioncount, tagscount }) => {
             Home
           </a>
 
-          <div
+          {/* <div
             className="list-group-item clickleftmenu bg-light bg-gradient"
             style={{ fontSize: "12px", textDecoration: "none" }}
             id="clickleftmenu2"
             onClick={handleClick}
           >
             PUBLIC
-          </div>
+          </div> */}
           <div
             className="list-group list-group-flush bg-light bg-gradient"
             id="item-3"
@@ -65,7 +65,7 @@ const Sidebar = ({ questioncount, tagscount }) => {
               </span>
             </a>
 
-            <a
+            {/* <a
               href="#item32"
               id="clickleftmenu4"
               style={{ textDecoration: "none" }}
@@ -134,7 +134,7 @@ const Sidebar = ({ questioncount, tagscount }) => {
               <a href="#items-navbar" className="dropdown-item">
                 Code Editor
               </a>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

@@ -14,7 +14,7 @@ const App = () => {
         <Route exact path="/home" element={<Homepage />} />
         <Route path="/question/:question_id" element={<Question />} />
         <Route path="/tag/:tag" element={<Tags />} />
-        <Route path="/user/" element={<UserProfile />} />
+        <Route path="/user" element={<UserProfile />} />
       </Routes>
     </BrowserRouter>
   );

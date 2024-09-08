@@ -1,292 +1,366 @@
 import React, { useEffect, useState } from "react";
-import "./UserProfile.css";
-import $ from "jquery";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 import Questions from "./UserQuestions/Questions";
 import Answers from "./UserAnswers/Answers";
+import "./UserProfile.css";
+import { data } from "jquery";
 
 const UserProfile = () => {
   const [cookies] = useCookies(["user"]);
-  var imgforload = (
-    <img
-      src="https://user-images.githubusercontent.com/76911582/196022890-ace53133-d1ec-49ae-83e0-45135f1116b4.gif"
-      width="20px"
-      alt="#img"
-    />
-  );
-  var imgforload1 = (
-    <img
-      src="https://user-images.githubusercontent.com/76911582/196022890-ace53133-d1ec-49ae-83e0-45135f1116b4.gif"
-      width="70px"
-      alt="#img"
-    />
-  );
-  const [userData = {}, setUserData] = useState(imgforload);
-  const [loaderforwait, setloaderforwait] = useState(imgforload1);
-  const [questioncount, setQuestionCount] = useState(imgforload);
-  const [CountAnswer, setCountAnswer] = useState(imgforload);
-  const history = useNavigate();
+  const [userData, setUserData] = useState({});
+  const [loaderforwait, setLoaderForWait] = useState(true);
+  const [questionCount, setQuestionCount] = useState(0);
+  const [countAnswer, setCountAnswer] = useState(0);
+  const [visit, visitCount] = useState(0);
+  const [activeSection, setActiveSection] = useState("contentName1");
 
+  const navigate = useNavigate();
+
+  // Fetch user data from the API
   const callUserPage = async () => {
     try {
+      const res = await fetch("http://localhost:5000/api/user/user", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          jsonwebtoken: cookies.jwttokenloginuser, // Include the token in the headers
+        },
+        credentials: "include",
+        body: JSON.stringify({}),
+      });
+      const userdata = await res.json();
+      if (res.status === 200) {
+        const username = userdata.name;
+        setUserData({
+          name: userdata.name,
+          email: userdata.email,
+        });
+
+        setLoaderForWait(false);
+      } else {
+        throw new Error(userdata.error);
+      }
+    } catch (err) {
+      console.error("Failed to fetch user data:", err);
+    }
+  };
+
+  const fetchUserQuestions = async () => {
+    try {
       const res = await fetch(
-        "https://askoverflow-server.vashishth-patel.repl.co/user",
+        "http://localhost:5000/api/user/getuserquestions",
         {
           method: "POST",
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
+            jsonwebtoken: cookies.jwttokenloginuser,
           },
-          body: JSON.stringify({
-            jwttokenloginuser: cookies.jwttokenloginuser,
-          }),
-          creadentials: "include",
+          credentials: "include",
+          body: JSON.stringify({}),
         }
       );
-      const userdata = await res.json();
+      const responsedata = await res.json();
 
-      const userdataname = userdata.rootUser.username;
-      userdata.rootUser.avatarlink =
-        "https://avatars.dicebear.com/api/gridy/" + userdataname + ".svg";
+      if (Array.isArray(responsedata)) {
+        setQuestionCount(responsedata.length);
 
-      setUserData(userdata.rootUser);
-      setQuestionCount(userdata.allquestions);
-      setloaderforwait();
-      if (res.status !== 200) {
-        const error = new Error(res.error);
-        throw error;
+        // Calculate total views from all questions
+        const totalViews = responsedata.reduce((acc, question) => {
+          return acc + (question.views || 0); // Add views for each question
+        }, 0);
+
+        visitCount(totalViews); // Update visit count state
       }
     } catch (err) {
-      console.log(err);
-      //   history("/");
+      console.log("Error fetching user questions:", err);
+    }
+  };
+
+  const fetchUserAnswers = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/user/getuseranswers", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          jsonwebtoken: cookies.jwttokenloginuser, // Include the token in the headers
+        },
+        credentials: "include",
+        body: JSON.stringify({}), // You might need to pass relevant data if required by your API
+      });
+
+      const responsedata = await res.json();
+
+      if (Array.isArray(responsedata)) {
+        setCountAnswer(responsedata.length);
+      } else {
+        console.log("Unexpected response format:", responsedata);
+      }
+    } catch (err) {
+      console.log("Error fetching user answers:", err);
     }
   };
 
   useEffect(() => {
     callUserPage();
+    fetchUserQuestions();
+    fetchUserAnswers();
   }, []);
 
-  const toggleusermenu = () => {
-    $(".sidebar").toggleClass("active");
+  const toggleUserMenu = () => {
+    setActiveSection((prevSection) =>
+      prevSection === "sidebar-active" ? "" : "sidebar-active"
+    );
   };
-  const openPage = (event, pageName) => {
-    var i, pagecontent;
-    pagecontent = document.getElementsByClassName("Right-bar");
-    for (i = 0; i < pagecontent.length; i++) {
-      pagecontent[i].style.display = "none";
-    }
-    $(".nav-links li a").removeClass("active");
-    var tempPageName = "#" + pageName;
-    $(tempPageName).css("display", "block");
-    event.currentTarget.className += " active";
+
+  const openPage = (pageName) => {
+    setActiveSection(pageName);
   };
 
   return (
     <div>
-      <div class="sidebar bg-primary">
-        <div class="logo-details">
-          <i class="fab fa-stack-overflow"></i>
-          <a href="/home/" class="logo_name">
+      <div
+        className={`sidebar bg-primary ${
+          activeSection === "sidebar-active" ? "active" : ""
+        }`}
+      >
+        <div className="logo-details">
+          <i className="fab fa-stack-overflow"></i>
+          <a href="/home/" className="logo_name">
             AskOverflow
           </a>
         </div>
-        <ul class="nav-links">
+        <ul className="nav-links">
           <li>
             <a
-              href="#sidenav-links"
-              class="active"
-              onClick={(event) => openPage(event, "contentName1")}
+              href="#"
+              className={activeSection === "contentName1" ? "active" : ""}
+              onClick={() => openPage("contentName1")}
             >
-              <i class="fas fa-tachometer-alt"></i>
-              <span class="nav-1 links_name nav-tab active">Dashboard</span>
+              <i className="fas fa-tachometer-alt"></i>
+              <span className="nav-1 links_name">Dashboard</span>
             </a>
           </li>
           <li>
             <a
-              href="#sidenav-links"
-              onClick={(event) => openPage(event, "user_answers")}
+              href="#"
+              className={activeSection === "user_answers" ? "active" : ""}
+              onClick={() => openPage("user_answers")}
             >
-              <i class="fas fa-user"></i>
-              <span class="nav-2 links_name nav-tab">Your Answers</span>
+              <i className="fas fa-user"></i>
+              <span className="nav-2 links_name">Your Answers</span>
             </a>
           </li>
           <li>
             <a
-              href="#sidenav-links"
-              onClick={(event) => openPage(event, "user_questions")}
+              href="#"
+              className={activeSection === "user_questions" ? "active" : ""}
+              onClick={() => openPage("user_questions")}
             >
-              <i class="fas fa-question"></i>
-              <span class="nav-3 links_name nav-tab">Your Questions</span>
+              <i className="fas fa-question"></i>
+              <span className="nav-3 links_name">Your Questions</span>
             </a>
           </li>
           <li>
             <a
-              href="#sidenav-links"
-              onClick={(event) => openPage(event, "user_comments")}
+              href="#"
+              className={activeSection === "user_comments" ? "active" : ""}
+              onClick={() => openPage("user_comments")}
             >
-              <i class="fas fa-comments"></i>
-              <span class="nav-4 links_name nav-tab">Your Comments</span>
+              <i className="fas fa-comments"></i>
+              <span className="nav-4 links_name">Your Comments</span>
             </a>
           </li>
           <li>
             <a
-              href="#sidenav-links"
-              onClick={(event) => openPage(event, "user_discussion")}
+              href="#"
+              className={activeSection === "user_discussion" ? "active" : ""}
+              onClick={() => openPage("user_discussion")}
             >
-              <i class="fas fa-comment"></i>
-              <span class="nav-5 links_name nav-tab">Discussion</span>
+              <i className="fas fa-comment"></i>
+              <span className="nav-5 links_name">Discussion</span>
             </a>
           </li>
           <li>
             <a
-              href="#sidenav-links"
-              onClick={(event) => openPage(event, "user_teams")}
+              href="#"
+              className={activeSection === "user_teams" ? "active" : ""}
+              onClick={() => openPage("user_teams")}
             >
-              <i class="fas fa-user-friends"></i>
-              <span class="nav-6 links_name nav-tab">Teams</span>
+              <i className="fas fa-user-friends"></i>
+              <span className="nav-6 links_name">Teams</span>
             </a>
           </li>
           <li>
             <a
-              href="#sidenav-links"
-              onClick={(event) => openPage(event, "user_settings")}
+              href="#"
+              className={activeSection === "user_settings" ? "active" : ""}
+              onClick={() => openPage("user_settings")}
             >
-              <i class="fas fa-cog"></i>
-              <span class="nav-6 links_name nav-tab">Setting</span>
+              <i className="fas fa-cog"></i>
+              <span className="nav-6 links_name">Settings</span>
             </a>
           </li>
           <li>
             <a href="/logout">
-              <i class="fas fa-arrow-alt-circle-left"></i>
-              <span class="links_name">Log out</span>
+              <i className="fas fa-arrow-alt-circle-left"></i>
+              <span className="links_name">Log out</span>
             </a>
           </li>
         </ul>
       </div>
-      <section class="home-section">
+
+      <section className="home-section">
         <nav>
-          <div class="sidebar-button">
-            <i class="fas fa-bars sidebarBtn" onClick={toggleusermenu}></i>
-            <span class="dashboard">Profile</span>
+          <div className="sidebar-button">
+            <i className="fas fa-bars sidebarBtn" onClick={toggleUserMenu}></i>
+            <span className="dashboard">Profile</span>
           </div>
-          <div class="search-box">
+          <div className="search-box">
             <input type="text" placeholder="Search..." />
-            <i class="fas fa-search"></i>
+            <i className="fas fa-search"></i>
           </div>
-          <div class="profile-details">
-            <img src={userData.avatarlink} alt="#img" />
-            <span class="admin_name">{userData.name}</span>
+          <div className="profile-details">
+            {/* <img src={userData.avatarlink} alt="User Avatar" /> */}
+            <span className="admin_name">{userData.name}</span>
           </div>
         </nav>
 
-        <div class="home-content Right-bar" id="contentName1">
-          <div class="overview-boxes">
-            <div class="box">
-              <div class="right-side">
-                <div class="box-topic">Reputation</div>
-                <div class="number">40</div>
-                <div class="indicator"></div>
+        <div
+          className={`home-content Right-bar ${
+            activeSection === "contentName1" ? "" : "d-none"
+          }`}
+          id="contentName1"
+        >
+          {/* Reputation answer and question number */}
+          <div className="overview-boxes">
+            <div className="box">
+              <div className="right-side">
+                <div className="box-topic">Reputation</div>
+                <div className="number">40</div>
+                <div className="indicator"></div>
               </div>
-              <i class="fas fa-users-cog cart"></i>
+              <i className="fas fa-users-cog cart"></i>
             </div>
-            <div class="box">
-              <div class="right-side">
-                <div class="box-topic">Answers</div>
-                <div class="number">{CountAnswer}</div>
-                <div class="indicator"></div>
+            <div className="box">
+              <div className="right-side">
+                <div className="box-topic">Answers</div>
+                <div className="number">{countAnswer}</div>
+                <div className="indicator"></div>
               </div>
-              <i class="fas fa-chalkboard-teacher cart two"></i>
+              <i className="fas fa-chalkboard-teacher cart two"></i>
             </div>
-            <div class="box">
-              <div class="right-side">
-                <div class="box-topic">Questions</div>
-                <div class="number">{questioncount}</div>
-                <div class="indicator"></div>
+            <div className="box">
+              <div className="right-side">
+                <div className="box-topic">Questions</div>
+                <div className="number">{questionCount}</div>
+                <div className="indicator"></div>
               </div>
-              <i class="fas fa-question cart three"></i>
+              <i className="fas fa-question cart three"></i>
             </div>
-            <div class="box">
-              <div class="right-side">
-                <div class="box-topic">Visits</div>
-                <div class="number">40</div>
-                <div class="indicator"></div>
+            <div className="box">
+              <div className="right-side">
+                <div className="box-topic">Visits</div>
+                <div className="number">{visit}</div>
+                <div className="indicator"></div>
               </div>
-              <i class="fas fa-eye cart four"></i>
+              <i className="fas fa-eye cart four"></i>
             </div>
           </div>
 
-          <div class="container">
-            <div class="row container">
-              <div class="col-10 container">{loaderforwait}</div>
+          <div className="container">
+            <div className="row container">
+              <div className="col-10 container">
+                {loaderforwait && (
+                  <img
+                    src="https://user-images.githubusercontent.com/39302742/151104547-d9c7baf0-ec1b-40d0-8011-634d04dc9185.gif"
+                    alt="Loader"
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>
 
         <div
-          class="home-content Right-bar"
+          className={`home-content Right-bar ${
+            activeSection === "user_answers" ? "" : "d-none"
+          }`}
           id="user_answers"
-          style={{ display: "none" }}
         >
-          <Answers setCountAnswer={setCountAnswer} />
+          <div className="container">
+            <h3>Your Answers</h3>
+            <Answers />
+          </div>
         </div>
 
         <div
-          class="home-content Right-bar"
+          className={`home-content Right-bar ${
+            activeSection === "user_questions" ? "" : "d-none"
+          }`}
           id="user_questions"
-          style={{ display: "none" }}
         >
-          <Questions setCountQuestion={setQuestionCount} />
+          <div className="container">
+            <h3>Your Questions</h3>
+            <Questions />
+          </div>
         </div>
 
         <div
-          class="home-content Right-bar"
+          className={`home-content Right-bar ${
+            activeSection === "user_comments" ? "" : "d-none"
+          }`}
           id="user_comments"
-          style={{ display: "none" }}
         >
-          <div class="container">
+          <div className="container">
             <h3>Comments</h3>
-            <div class="row container">
-              <div class="col-10 container"></div>
+            <div className="row container">
+              <div className="col-10 container"></div>
             </div>
           </div>
         </div>
 
         <div
-          class="home-content Right-bar"
+          className={`home-content Right-bar ${
+            activeSection === "user_discussion" ? "" : "d-none"
+          }`}
           id="user_discussion"
-          style={{ display: "none" }}
         >
-          <div class="container">
+          <div className="container">
             <h3>Discussion</h3>
-            <div class="row container">
-              <div class="col-10 container"></div>
+            <div className="row container">
+              <div className="col-10 container"></div>
             </div>
           </div>
         </div>
 
         <div
-          class="home-content Right-bar"
+          className={`home-content Right-bar ${
+            activeSection === "user_teams" ? "" : "d-none"
+          }`}
           id="user_teams"
-          style={{ display: "none" }}
         >
-          <h1>Hello Teams</h1>
+          <div className="container">
+            <h3>Teams</h3>
+            <div className="row container">
+              <div className="col-10 container"></div>
+            </div>
+          </div>
         </div>
 
         <div
-          class="home-content Right-bar"
+          className={`home-content Right-bar ${
+            activeSection === "user_settings" ? "" : "d-none"
+          }`}
           id="user_settings"
-          style={{ display: "none" }}
         >
-          <div className="container d-flex">
-            <div className="row">
-              <div className="d-flex">
-                <h4>Username:&nbsp; </h4> <h4> {userData.username}</h4>
-              </div>
-              <div className="d-flex">
-                <h4>Email:&nbsp; </h4>{" "}
-                <h4 className="danger"> {userData.email}</h4>
-              </div>
+          <div className="container">
+            <h3>Settings</h3>
+            <div className="row container">
+              <div className="col-10 container"></div>
             </div>
           </div>
         </div>

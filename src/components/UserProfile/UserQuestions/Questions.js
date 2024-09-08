@@ -19,21 +19,19 @@ const Questions = (props) => {
   );
 
   const [AllQuestions, setAllQuestions] = useState(imgforload1);
-
   const QuestionDataGet = async () => {
     try {
       const res = await fetch(
-        "https://askoverflow-server.vashishth-patel.repl.co/getuserquestion",
+        "http://localhost:5000/api/user/getuserquestions",
         {
           method: "POST",
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
+            jsonwebtoken: cookies.jwttokenloginuser, // Include the token in the headers
           },
-          body: JSON.stringify({
-            jwttokenloginuser: cookies.jwttokenloginuser,
-          }),
-          creadentials: "include",
+          credentials: "include",
+          body: JSON.stringify({}),
         }
       );
       const responsedata = await res.json();
@@ -44,7 +42,7 @@ const Questions = (props) => {
       setCountQuestion(allquestion.length);
     } catch (err) {
       console.log(err);
-      //   history("/");
+      // history("/");
     }
   };
 

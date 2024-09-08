@@ -13,6 +13,7 @@ const Homepage = () => {
   const [totalTags, setTotalTags] = useState(0);
 
   useEffect(() => {
+    console.log("Cookies JSON:", JSON.stringify(cookies, null, 2));
     // Initialize state from cookies
     const jwtTokenLoginUserCookie = cookies.jwttokenloginuser || "";
     // Additional initialization logic if needed
@@ -112,40 +113,6 @@ const Homepage = () => {
                 <hr />
 
                 <Questions onhandleCountChange={handleCountChange} />
-
-                <nav aria-label="Page navigation example">
-                  <ul className="pagination justify-content-center">
-                    <li className="page-item disabled">
-                      <a
-                        className="page-link"
-                        href="#homepagelink"
-                        tabIndex="-1"
-                      >
-                        Previous
-                      </a>
-                    </li>
-                    <li className="page-item">
-                      <a className="page-link" href="#1">
-                        1
-                      </a>
-                    </li>
-                    <li className="page-item">
-                      <a className="page-link" href="#1">
-                        2
-                      </a>
-                    </li>
-                    <li className="page-item">
-                      <a className="page-link" href="#1">
-                        3
-                      </a>
-                    </li>
-                    <li className="page-item">
-                      <a className="page-link" href="#homepagelink">
-                        Next
-                      </a>
-                    </li>
-                  </ul>
-                </nav>
               </div>
               <div className="col-lg-4 bgmoredark">
                 <br />

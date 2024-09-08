@@ -159,6 +159,11 @@ const Navbar = (props) => {
       if (res.status === 201) {
         window.alert(resjson.message);
         window.location.reload();
+        // Log the response for debugging
+        console.log("User ID:", resjson.userId);
+        console.log("Response JSON:", resjson);
+
+        // Check if userId is defined
       } else {
         window.alert(resjson.error);
       }

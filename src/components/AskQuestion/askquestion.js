@@ -20,6 +20,7 @@ const AskQuestion = (props) => {
       console.log(arraytags);
       console.log(questionheader);
       console.log(questionbody);
+
       const postQuestionData = async () => {
         try {
           const token = cookies.jwttokenloginuser; // Ensure this is correct

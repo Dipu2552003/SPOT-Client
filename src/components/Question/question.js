@@ -1,12 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./question.css";
 import Navbar from "../NavBar/Navbar.js";
 import { SideFeatured } from "../SideFeatured/Sidefeatured.js";
 import { AskQuestion } from "../AskQuestion/askquestion";
 import { useParams, useNavigate } from "react-router-dom";
-// import $ from "jquery";
 import ReactMarkdown from "react-markdown";
-import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import axios from "axios";
 import AnswerPost from "./postAnswer.js";
@@ -14,272 +12,222 @@ import Answer from "./questionAnswer.js";
 import Sidebar from "../HomePage/Sidebar.js";
 import EditQuestion from "./editQuestion.js";
 import ShareLink from "./ShareLink.js";
-// import LiveMarkdown from './editor.js';
 
-// class Question extends Component {
-const Question = (props) => {
-  // render() {
-  const history = useNavigate();
-  // const question_id = props.match.params.question_id;
+const Question = () => {
+  const navigate = useNavigate();
   const [cookies] = useCookies(["user"]);
-  // const [markdownInput, setMarkdownInput] = useState()
-  var imgforloadvote = (
-    <img
-      src="https://user-images.githubusercontent.com/76911582/196022890-ace53133-d1ec-49ae-83e0-45135f1116b4.gif"
-      width="15px"
-      alt="#img"
-    />
+  const [question, setQuestion] = useState({ answers: [] });
+  const [questionTags, setQuestionTags] = useState([]);
+  const [questionCountVote, setQuestionCountVote] = useState(null);
+  const [editQuestionLink, setEditQuestionLink] = useState(<span>&nbsp;</span>);
+  const [deleteQuestionLink, setDeleteQuestionLink] = useState(
+    <span>&nbsp;</span>
   );
-  var imgforload = (
-    <img
-      src="https://user-images.githubusercontent.com/76911582/196022890-ace53133-d1ec-49ae-83e0-45135f1116b4.gif"
-      width="60px"
-      alt="#img"
-    />
-  );
-  const [question_count_vote, setquestion_count_vote] =
-    useState(imgforloadvote);
 
-  const { question_id } = useParams(); //this is for function component
-  var jwttoken = cookies.jwttokenloginuser || "";
-  let askquestionsign;
-  if (jwttoken !== "") {
-    askquestionsign = (
-      <div>
-        {" "}
-        <button
-          class="float-right
- btnaskquestion btn btn-secondary"
-          data-bs-toggle="modal"
-          data-bs-target="#askquestionmodal"
-        >
-          Ask Question
-        </button>
-        <AskQuestion />{" "}
-      </div>
-    );
-  } else {
-    askquestionsign = (
-      <button
-        class="float-right btnaskquestion btn btn-secondary"
-        data-toggle="modal"
-        data-target="#loginModal"
-      >
-        Login To Ask Question
-      </button>
-    );
-  }
-
+  const { question_id } = useParams();
+  const jwttoken = cookies.jwttokenloginuser || "";
   const userid = cookies.userid;
-  const [question, setquestion] = useState({ answers: [] });
-  const [questiontags, setquestiontags] = useState(imgforload);
 
-  // console.log(question_id);
+  useEffect(() => {
+    const getQuestion = async () => {
+      try {
+        console.log("JWT Token:", jwttoken);
+        console.log("cookie:", cookies);
+        const res = await axios.get(
+          `http://localhost:5000/api/question/public/question?id=${question_id}`
+        );
+        const tags = res.data.tags.map((tag) => (
+          <div className="question-div" key={tag}>
+            <a href="#hhh">
+              <span className="badge question-tags">{tag}</span>
+            </a>
+          </div>
+        ));
+
+        setQuestionTags(tags);
+        setQuestionCountVote(
+          res.data.liked_by.length - res.data.unliked_by.length
+        );
+        setQuestion(res.data);
+
+        if (jwttoken && userid === res.data.posted_by) {
+          setEditQuestionLink(
+            <span
+              className="fc-light mr2"
+              data-toggle="modal"
+              data-target={`#editQuestion${res.data._id}`}
+            >
+              <a href="#editQuestion">&nbsp;&nbsp;edit &nbsp;</a>
+            </span>
+          );
+          setDeleteQuestionLink(
+            <span className="fc-light mr2">
+              <a href="#deleteQuestion" onClick={deleteQuestion}>
+                delete
+              </a>
+            </span>
+          );
+        }
+      } catch (err) {
+        window.alert("Error from server!!", err);
+      }
+    };
+
+    getQuestion();
+  }, [question_id, jwttoken, userid]);
+
   const deleteQuestion = async () => {
-    console.log("Delete");
-    axios
-      .post(
-        `https://askoverflow-server.vashishth-patel.repl.co/questiondelete`,
+    try {
+      const res = await axios.post(
+        `http://localhost:5000/api/question/questiondelete`,
         {
           questionid: question_id,
           jwttokenloginuser: jwttoken,
+        },
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            jsonwebtoken: jwttoken, // Include the token in the headers
+          },
+          withCredentials: true, // If you need to send credentials with the request
         }
-      )
-      .then((res) => {
-        console.log("deleted");
-        window.alert(res.data.message);
-        history.push("/");
-      })
-      .catch((res) => window.alert("Error: " + res.data.error));
+      );
+      window.alert(res.data.message);
+      navigate("/");
+    } catch (err) {
+      window.alert("Error: " + err.response?.data?.error || "Unknown Error");
+    }
   };
-  const getquestion = async () => {
-    axios
-      .get(`http://localhost:5000/api/question/public/publicquestionsget`)
-      .then((res) => {
-        var questiontags1 = [];
-        questiontags1[0] = <div class="question-div offset-1"></div>;
-        for (var i = 0; i < res.data.tags.length; i++) {
-          questiontags1[i + 1] = (
-            <div class="question-div">
-              <a href="#hhh">
-                <span class="badge question-tags">{res.data.tags[i]}</span>
-              </a>
-            </div>
-          );
-        }
 
-        setquestiontags(questiontags1);
+  const addQuestionVote = async (vote) => {
+    if (jwttoken) {
+      const prevCount = questionCountVote;
+      setQuestionCountVote("loading...");
 
-        setquestion_count_vote(
-          res.data.liked_by.length - res.data.unliked_by.length
-        );
-        setquestion(res.data);
-        console.log(res.data);
-        // console.log(res.data.tags)
-      })
-      .catch((err) => {
-        window.alert("Error from server!!", err);
-      });
-  };
-  function addQuestionVote(vote) {
-    // https://user-images.githubusercontent.com/76911582/190166775-b792861c-f01f-4a69-b406-e08a0adf0fd0.gif
-    if (jwttoken !== "") {
-      var prevcount = question_count_vote;
-      setquestion_count_vote(imgforloadvote);
-      // console.log(vote);
-      // console.log(answer._id,jwttoken)
-      // JSON.stringify(error)
-      axios
-        .post(
+      try {
+        const response = await axios.post(
           "https://askoverflow-server.vashishth-patel.repl.co/questionvote",
           {
             questionid: question._id,
             vote: vote,
             jwttokenloginuser: jwttoken,
           }
-        )
-        .then(function (response: AxiosResponse) {
-          // console.log(response);
-          // console.log(response.data.given_vote);
-          var givenvote = response.data.given_vote;
-          // var res = JSON.parse(response);
-          // var heycount = res.data.given_vote;
-          setquestion_count_vote(prevcount + givenvote);
-          // if(response.status === 201) {
-          //   setcount_vote(answer.liked_by.length - answer.unliked_by.length + response.given_vote);
-          //   // window.alert(response.message);
-          // }
-          // else{
-          //   window.alert(response.error);
-          // }
-        })
-        .catch(function (error: AxiosError) {
-          // console.log(error.response.data.error);
-          window.alert(error.response.data.error);
-          setquestion_count_vote(prevcount);
-        });
+        );
+        const givenVote = response.data.given_vote;
+        setQuestionCountVote(prevCount + givenVote);
+      } catch (error) {
+        window.alert(error.response.data.error);
+        setQuestionCountVote(prevCount);
+      }
     } else {
       window.alert("Please login to vote");
     }
-  }
+  };
 
-  useEffect(() => {
-    getquestion();
-  }, []);
-  let index = 0;
-  const allAnswers = question.answers.map((ans) => {
-    index++;
-    return (
-      <Answer
-        answer={ans}
-        mtype={"answer"}
-        aid={index}
-        question_owner={question.posted_by}
-        question_id={question._id}
-      />
-    );
-  });
-  var profile_url =
-    "https://avatars.dicebear.com/api/gridy/" + question.asked_by + ".svg";
+  const allAnswers = question.answers.map((ans, index) => (
+    <Answer
+      key={ans._id}
+      answer={ans}
+      mtype={"answer"}
+      aid={index + 1}
+      question_owner={question.posted_by}
+      question_id={question._id}
+    />
+  ));
 
-  let editQuestionLink = <span>&nbsp;</span>;
-  let deleteQuestionLink = <span>&nbsp;</span>;
-  if (jwttoken !== "") {
-    if (userid === question.posted_by) {
-      editQuestionLink = (
-        <span
-          className="fc-light mr2"
-          data-toggle="modal"
-          data-target={"#editQuestion" + question._id}
-        >
-          <a href="#editQuestion">&nbsp;&nbsp;edit &nbsp;</a>
-        </span>
-      );
-      deleteQuestionLink = (
-        <span className="fc-light mr2">
-          <a href="#deleteQuestion" onClick={deleteQuestion}>
-            delete
-          </a>
-        </span>
-      );
-    } else {
-      editQuestionLink = " ";
-    }
-  }
-  // console.log(question);
+  const profileUrl = `https://avatars.dicebear.com/api/gridy/${question.asked_by}.svg`;
+
   return (
     <div>
       <Navbar />
-      {/* Grid System for questions */}
-      <div class="maincontent">
-        <div class="row">
-          {/*first grid*/}
+      <div className="maincontent">
+        <div className="row">
           <Sidebar />
-          {/*second grid*/}
-          <div class="col-sm-9 col-md-10 col-12 bgmoredark cssforpadTomaincontent">
-            <div class="row">
-              <div class="col-lg-8 col-md-10 col-12">
-                <div class="row margquesions">
-                  <div class="col-12">{askquestionsign}</div>
+          <div className="col-sm-9 col-md-10 col-12 bgmoredark cssforpadTomaincontent">
+            <div className="row">
+              <div className="col-lg-8 col-md-10 col-12">
+                <div className="row margquesions">
+                  <div className="col-12">
+                    {jwttoken ? (
+                      <div>
+                        <button
+                          className="float-right btnaskquestion btn btn-secondary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#askquestionmodal"
+                        >
+                          Ask Question
+                        </button>
+                        <AskQuestion />
+                      </div>
+                    ) : (
+                      <button
+                        className="float-right btnaskquestion btn btn-secondary"
+                        data-toggle="modal"
+                        data-target="#loginModal"
+                      >
+                        Login To Ask Question
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div class="row margquesions">
+                <div className="row margquesions">
                   <div className="col-lg-1 col-md-1 col-sm-1 col-2">
                     <div>
                       <div
                         className="btnupdown btn-primary"
-                        onClick={(event) => addQuestionVote(1)}
+                        onClick={() => addQuestionVote(1)}
                       >
-                        <i class="fas btnupdownicon fa-chevron-up"></i>
+                        <i className="fas btnupdownicon fa-chevron-up"></i>
                       </div>
                     </div>
                     <div className="mrginevotescountanswer">
-                      {question_count_vote}
+                      {questionCountVote}
                     </div>
                     <div>
                       <div
                         className="btnupdown btn-primary"
-                        onClick={(event) => addQuestionVote(-1)}
+                        onClick={() => addQuestionVote(-1)}
                       >
-                        <i class="fas btnupdownicon fa-chevron-down"></i>
+                        <i className="fas btnupdownicon fa-chevron-down"></i>
                       </div>
                     </div>
                   </div>
-                  <div class="col-lg-11 col-md-11 col-sm-11 col-10">
+                  <div className="col-lg-11 col-md-11 col-sm-11 col-10">
                     <div
                       itemprop="name"
-                      class="fs-headline1 ow-break-word mb8 flex--item fl1"
+                      className="fs-headline1 ow-break-word mb8 flex--item fl1"
                     >
                       <a
                         href={`/question/${question_id}`}
-                        class="question-hyperlink"
+                        className="question-hyperlink"
                       >
                         {question.header}
                       </a>
                     </div>
                   </div>
                 </div>
-                <div class="row margquesions">
-                  <div class="col-lg-7 col-7 askdetails">
-                    <span class="fc-light mr2">Asked on</span> &nbsp;
-                    <span class="fc-dark mr2">{question.posted_on}</span> |
+                <div className="row margquesions">
+                  <div className="col-lg-7 col-7 askdetails">
+                    <span className="fc-light mr2">Asked on</span> &nbsp;
+                    <span className="fc-dark mr2">{question.posted_on}</span> |
                     &nbsp;
-                    <span class="fc-light mr2">Viewed</span> &nbsp;
-                    <span class="fc-dark mr8">{question.views} times</span>
+                    <span className="fc-light mr2">Viewed</span> &nbsp;
+                    <span className="fc-dark mr8">{question.views} times</span>
                   </div>
-                  <div class="col-lg-5 col-5 askdetails">
-                    <span class="fc-light mr2">Posted by</span> &nbsp;
+                  <div className="col-lg-5 col-5 askdetails">
+                    <span className="fc-light mr2">Posted by</span> &nbsp;
                     <img
-                      src={profile_url}
+                      src={profileUrl}
                       alt="user avatar"
                       width="32"
                       height="32"
-                      class="bar-sm"
+                      className="bar-sm"
                     />{" "}
                     &nbsp; <a href="#hello">{question.asked_by}</a>
                   </div>
                 </div>
-                {/* edit share and follow start */}
-                <div class="row">
+                <div className="row">
                   <div className="col-8">
                     <ShareLink
                       mylink={question._id}
@@ -287,11 +235,10 @@ const Question = (props) => {
                       aid={1}
                     />
                     {editQuestionLink}
-                    {/* edit answer modal start */}
                     <div
-                      class="modal fade"
-                      id={"editQuestion" + question._id}
-                      tabindex="-1"
+                      className="modal fade"
+                      id={`editQuestion${question._id}`}
+                      tabIndex="-1"
                       role="dialog"
                       aria-labelledby="editQuestionCenterTitle"
                       aria-hidden="true"
@@ -303,7 +250,6 @@ const Question = (props) => {
                         questionId={question._id}
                       />
                     </div>
-                    {/* edit answer modal end */}
                     <span className="fc-light mr2">
                       <a href="#hello">follow</a>
                     </span>{" "}
@@ -311,53 +257,50 @@ const Question = (props) => {
                   </div>
                   {deleteQuestionLink}
                 </div>
-                {/* edit share and follow end */}
-
-                <div></div>
                 <hr />
-
-                <div class="row margquesions1">
-                  <div class="row">
-                    <div class="col-10 offset-1">
-                      <ReactMarkdown children={question.body} />
+                <div className="row margquesions1">
+                  <div className="row">
+                    <div className="col-10 offset-1">
+                      <ReactMarkdown>{question.body}</ReactMarkdown>
                     </div>
                   </div>
-                  <div>{questiontags}</div>
+                  <div>{questionTags}</div>
                 </div>
                 <hr />
-
-                <div class="row justify-content-center margquesions1">
-                  <div class="col-lg-8 col-sm-8 col-12">
+                <div className="row justify-content-center margquesions1">
+                  <div className="col-lg-8 col-sm-8 col-12">
                     <h3>{question.answers.length} Answers:</h3>
                   </div>
-
-                  <div class="col-lg-4 col-sm-4 col-12">
-                    <div class="row">
-                      <div class="col-lg-4 col">sorted by</div>
-                      <div class="col-lg-2 col">
+                  <div className="col-lg-4 col-sm-4 col-12">
+                    <div className="row">
+                      <div className="col-lg-4 col">sorted by</div>
+                      <div className="col-lg-2 col">
                         <select>
                           <option>ascending</option>
-                          <option>Most votes</option>
                           <option>descending</option>
                         </select>
                       </div>
                     </div>
                   </div>
                 </div>
-                <br />
-
-                <div>
-                  {/*answersr*/}
-                  {allAnswers}
-                </div>
-
                 <hr />
-
-                {/*<LiveMarkdown />*/}
-                <AnswerPost />
+                {allAnswers}
+                <hr />
+                {jwttoken ? (
+                  <AnswerPost qid={question._id} username={cookies.username} />
+                ) : (
+                  <div>
+                    <button
+                      className="float-right btnaskquestion btn btn-secondary"
+                      data-toggle="modal"
+                      data-target="#loginModal"
+                    >
+                      Login to post answer
+                    </button>
+                  </div>
+                )}
               </div>
-              <div class="col-lg-4 bgmoredark">
-                <br />
+              <div className="col-lg-4 col-md-2 col-12">
                 <SideFeatured />
               </div>
             </div>
@@ -367,4 +310,5 @@ const Question = (props) => {
     </div>
   );
 };
+
 export default Question;

@@ -1,132 +1,73 @@
-import React from "react";
-import "./question.css";
-// import { NavForHome } from "../NavBar/NavBar";
-// import { SideFeatured } from "../SideFeatured/sidefeatured"
-// import { Questions } from "../Questions/questions"
-// import { AskQuestion } from "../AskQuestion/askquestion"
-import { useParams } from "react-router-dom";
-import $ from "jquery";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useCookies } from "react-cookie";
-import axios from "axios";
-import Markdown from "https://esm.sh/react-markdown@9";
+import { useParams } from "react-router-dom";
 
-const AnswerPost = (props) => {
+const PostAnswer = () => {
   const [answerload, setanswerload] = useState("Post Your Answer");
   const [markdownContent, setMarkdownContent] = useState("");
   const [cookies] = useCookies(["user"]);
   const { question_id } = useParams();
   const jwttoken = cookies.jwttokenloginuser || "";
 
-  const PostAnswerServer = function () {
-    var textanswertopostvalue1 = $(".textanswertopost1").val();
-    // console.log("herllo", jwttoken, textanswertopostvalue1);
-    if (textanswertopostvalue1 !== "") {
-      setanswerload("Please Wait For A Moment...");
-      axios
-        .post("https://askoverflow-server.vashishth-patel.repl.co/answerpost", {
-          questionid: question_id,
-          body: textanswertopostvalue1,
-          jwttokenloginuser: jwttoken,
-        })
-        .then(function (response) {
-          // console.log(response);
-          window.location.replace("/question/" + question_id);
-        });
-    } else {
+  const PostAnswerServer = async () => {
+    if (markdownContent === "") {
       window.alert("No text available");
+      return;
+    }
+
+    setanswerload("Please Wait For A Moment...");
+
+    try {
+      const res = await fetch("http://localhost:5000/api/answer/answerpost", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          jsonwebtoken: jwttoken, // Include the token in the headers
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          questionid: question_id,
+          body: markdownContent,
+        }),
+      });
+
+      const resjson = await res.json();
+      console.log("Response JSON:", resjson);
+
+      if (res.status === 201) {
+        window.alert(resjson.message || "Answer posted successfully");
+        window.location.replace(`/question/${question_id}`);
+      } else {
+        window.alert(
+          resjson.error || "Failed to post answer. Please try again."
+        );
+      }
+    } catch (err) {
+      console.error("Error:", err);
+      window.alert("Failed to post answer. Please try again.");
+    } finally {
+      setanswerload("Post Your Answer");
     }
   };
 
-  var buttonforanswer = (
-    <button onClick={PostAnswerServer} class="btn btn-primary col-12">
-      {answerload}
-    </button>
-  );
-
-  if (jwttoken !== "") {
-    buttonforanswer = (
-      <button onClick={PostAnswerServer} class="btn btn-primary col-12">
+  return (
+    <div className="container">
+      <h2>Post Your Answer</h2>
+      <div className="form-group">
+        <textarea
+          className="form-control"
+          rows="5"
+          value={markdownContent}
+          onChange={(e) => setMarkdownContent(e.target.value)}
+          placeholder="Type your answer here..."
+        ></textarea>
+      </div>
+      <button onClick={PostAnswerServer} className="btn btn-primary">
         {answerload}
       </button>
-    );
-  } else {
-    buttonforanswer = (
-      <button
-        class="float-right btnaskquestion btn btn-secondary"
-        data-toggle="modal"
-        data-target="#loginModal"
-      >
-        Login To Ask Question
-      </button>
-    );
-  }
-
-  return (
-    <>
-      <div class="bottom-margin">
-        <h3>Your Answer</h3>
-        <div class="col-12 border-post-answer">
-          <section id="header-strip">
-            <ul>
-              <li>
-                <i class="fa fa-bold" aria-hidden="true"></i>
-              </li>
-              <li>
-                <i class="fa fa-italic" aria-hidden="true"></i>
-              </li>
-              <li>
-                <i class="fa fa-underline" aria-hidden="true"></i>
-              </li>
-              <li>
-                <i class="fa fa-header" aria-hidden="true"></i>
-              </li>
-              <li>
-                <i class="fa fa-indent" aria-hidden="true"></i>
-              </li>
-              <li>
-                <i class="fa fa-list-ol" aria-hidden="true"></i>
-              </li>
-              <li>
-                <i class="fa fa-list-ul" aria-hidden="true"></i>
-              </li>
-              <li>
-                <i class="fa fa-clipboard" aria-hidden="true"></i>
-              </li>
-              <li>
-                <i class="fa fa-link" aria-hidden="true"></i>
-              </li>
-              <li>
-                <i class="fa fa-font" aria-hidden="true"></i>
-              </li>
-              <li>
-                <i class="fa fa-undo" aria-hidden="true"></i>
-              </li>
-              <li>
-                <i class="fa fa-files-o" aria-hidden="true"></i>
-              </li>
-            </ul>
-          </section>
-        </div>
-        <div class="row">
-          <div class="col-12">
-            <textarea
-              rows="8"
-              class="col-12 textanswertopost1"
-              placeholder="Give your answer"
-              onChange={(e) => setMarkdownContent(e.target.value)}
-              required
-            ></textarea>
-            {markdownContent && (
-              <div class="mb-3 border border-dark rounded-5 p-3">
-                <Markdown>{markdownContent}</Markdown>
-              </div>
-            )}
-            {buttonforanswer}
-          </div>
-        </div>
-      </div>
-    </>
+    </div>
   );
 };
-export default AnswerPost;
+
+export default PostAnswer;
