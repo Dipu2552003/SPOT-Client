@@ -34,7 +34,7 @@ const Question = () => {
         console.log("JWT Token:", jwttoken);
         console.log("cookie:", cookies);
         const res = await axios.get(
-          `http://localhost:5000/api/question/public/question?id=${question_id}`
+          `${process.env.REACT_APP_API_BASE_URL}/api/question/public/question?id=${question_id}`
         );
         const tags = res.data.tags.map((tag) => (
           <div className="question-div" key={tag}>
@@ -79,7 +79,7 @@ const Question = () => {
   const deleteQuestion = async () => {
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/question/questiondelete`,
+        `${process.env.REACT_APP_API_BASE_URL}/api/question/questiondelete`,
         {
           questionid: question_id,
           jwttokenloginuser: jwttoken,

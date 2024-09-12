@@ -51,7 +51,7 @@ const EditQuestion = (props) => {
 
       axios
         .post(
-          "http://localhost:5000/api/question/questionedit",
+          `${process.env.REACT_APP_API_BASE_URL}/api/question/questionedit`,
           {
             questionid: qid,
             body: qbody,

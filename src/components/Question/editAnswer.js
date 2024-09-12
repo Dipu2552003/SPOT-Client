@@ -28,7 +28,7 @@ const EditAnswer = (props) => {
     if (currentA !== "") {
       setanswerload("Please Wait For A Moment...");
       axios
-        .post("https://askoverflow-server.vashishth-patel.repl.co/answeredit", {
+        .post(`${process.env.REACT_APP_API_BASE_URL}/answeredit`, {
           answerid: answerId,
           body: currentA,
           jwttokenloginuser: jwttoken,

@@ -20,16 +20,19 @@ const UserProfile = () => {
   // Fetch user data from the API
   const callUserPage = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/user/user", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          jsonwebtoken: cookies.jwttokenloginuser, // Include the token in the headers
-        },
-        credentials: "include",
-        body: JSON.stringify({}),
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/user/user`,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            jsonwebtoken: cookies.jwttokenloginuser, // Include the token in the headers
+          },
+          credentials: "include",
+          body: JSON.stringify({}),
+        }
+      );
       const userdata = await res.json();
       if (res.status === 200) {
         const username = userdata.name;
@@ -50,7 +53,7 @@ const UserProfile = () => {
   const fetchUserQuestions = async () => {
     try {
       const res = await fetch(
-        "http://localhost:5000/api/user/getuserquestions",
+        `${process.env.REACT_APP_API_BASE_URL}/api/user/getuserquestions`,
         {
           method: "POST",
           headers: {
@@ -81,16 +84,19 @@ const UserProfile = () => {
 
   const fetchUserAnswers = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/user/getuseranswers", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          jsonwebtoken: cookies.jwttokenloginuser, // Include the token in the headers
-        },
-        credentials: "include",
-        body: JSON.stringify({}), // You might need to pass relevant data if required by your API
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/user/getuseranswers`,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            jsonwebtoken: cookies.jwttokenloginuser, // Include the token in the headers
+          },
+          credentials: "include",
+          body: JSON.stringify({}), // You might need to pass relevant data if required by your API
+        }
+      );
 
       const responsedata = await res.json();
 

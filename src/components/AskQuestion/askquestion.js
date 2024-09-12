@@ -36,7 +36,7 @@ const AskQuestion = (props) => {
           );
 
           const res = await fetch(
-            "http://localhost:5000/api/question/questionpost",
+             `${process.env.REACT_APP_API_BASE_URL}/api/question/questionpost`,
             {
               method: "POST",
               headers: {

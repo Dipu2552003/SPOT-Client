@@ -18,19 +18,22 @@ const PostAnswer = () => {
     setanswerload("Please Wait For A Moment...");
 
     try {
-      const res = await fetch("http://localhost:5000/api/answer/answerpost", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          jsonwebtoken: jwttoken, // Include the token in the headers
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          questionid: question_id,
-          body: markdownContent,
-        }),
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/answer/answerpost`,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            jsonwebtoken: jwttoken, // Include the token in the headers
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            questionid: question_id,
+            body: markdownContent,
+          }),
+        }
+      );
 
       const resjson = await res.json();
       console.log("Response JSON:", resjson);

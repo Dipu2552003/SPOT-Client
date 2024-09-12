@@ -12,7 +12,9 @@ const Questions = ({ onhandleCountChange }) => {
   useEffect(() => {
     // Load all questions once
     axios
-      .get("http://localhost:5000/api/question/public/publicquestionsget")
+      .get(
+        `${process.env.REACT_APP_API_BASE_URL}/api/question/public/publicquestionsget`
+      )
       .then((res) => {
         setQuestions(res.data);
         const total = res.data.length;
