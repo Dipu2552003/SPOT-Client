@@ -5,6 +5,7 @@ import Homepage from "./components/HomePage/Homepage";
 import Question from "./components/Question/question";
 import Tags from "./components/HomePage/Tags";
 import UserProfile from "./components/UserProfile/UserProfile";
+import Event from "./components/Event/Event";
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
         <Route path="/question/:question_id" element={<Question />} />
         <Route path="/tag/:tag" element={<Tags />} />
         <Route path="/user" element={<UserProfile />} />
+        <Route path="/event" element={<Event />} />
       </Routes>
     </BrowserRouter>
   );

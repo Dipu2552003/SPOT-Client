@@ -40,14 +40,6 @@ const Sidebar = ({ questioncount, tagscount }) => {
             Home
           </a>
 
-          {/* <div
-            className="list-group-item clickleftmenu bg-light bg-gradient"
-            style={{ fontSize: "12px", textDecoration: "none" }}
-            id="clickleftmenu2"
-            onClick={handleClick}
-          >
-            PUBLIC
-          </div> */}
           <div
             className="list-group list-group-flush bg-light bg-gradient"
             id="item-3"
@@ -64,78 +56,16 @@ const Sidebar = ({ questioncount, tagscount }) => {
                 {questioncount}
               </span>
             </a>
-
-            {/* <a
-              href="#item32"
-              id="clickleftmenu4"
-              style={{ textDecoration: "none" }}
-              className="clickleftmenu list-group-item bg-light bg-gradient"
-              onClick={handleClick}
-            >
-              <i className="fas fa-tags"></i>Tags
-              <span className="badge countbadge badge-primary">
-                {tagscount}
-              </span>
-            </a>
-
-            <a
-              href="#item33"
-              id="clickleftmenu5"
-              style={{ textDecoration: "none" }}
-              className="clickleftmenu list-group-item bg-light bg-gradient"
-              onClick={handleClick}
-            >
-              <i className="fas fa-users"></i>Users
-            </a>
-
-            <a
-              href="#item33"
-              id="clickleftmenu6"
-              style={{ textDecoration: "none" }}
-              className="clickleftmenu list-group-item bg-light bg-gradient"
-              onClick={handleClick}
-            >
-              <i className="fas fa-briefcase"></i>Jobs
-            </a>
           </div>
           <a
-            href="/tag/academic"
+            href="/event"
             className="list-group-item clickleftmenu bg-light bg-gradient"
             style={{ fontSize: "12px", textDecoration: "none" }}
-            id="clickleftmenu7"
+            id="clickleftmenu3"
             onClick={handleClick}
           >
-            Teams
+            Events
           </a>
-          <a
-            href="/tag/academic"
-            className="list-group-item clickleftmenu bg-light bg-gradient"
-            style={{ fontSize: "12px", textDecoration: "none" }}
-            id="clickleftmenu8"
-            onClick={handleClick}
-          >
-            Teams
-          </a>
-          <div className="nav-item dropdown">
-            <a
-              href="#items-navbar"
-              className="nav-link dropdown-toggle"
-              data-bs-toggle="dropdown"
-            >
-              Products
-            </a>
-            <div className="dropdown-menu">
-              <a href="#items-navbar" className="dropdown-item">
-                StackExchange
-              </a>
-              <a href="#items-navbar" className="dropdown-item">
-                Community Forum
-              </a>
-              <a href="#items-navbar" className="dropdown-item">
-                Code Editor
-              </a>
-            </div> */}
-          </div>
         </div>
       </div>
     </div>

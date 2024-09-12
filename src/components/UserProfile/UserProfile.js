@@ -130,7 +130,7 @@ const UserProfile = () => {
         <div className="logo-details">
           <i className="fab fa-stack-overflow"></i>
           <a href="/home/" className="logo_name">
-            AskOverflow
+            SPOT
           </a>
         </div>
         <ul className="nav-links">
@@ -164,26 +164,7 @@ const UserProfile = () => {
               <span className="nav-3 links_name">Your Questions</span>
             </a>
           </li>
-          <li>
-            <a
-              href="#"
-              className={activeSection === "user_comments" ? "active" : ""}
-              onClick={() => openPage("user_comments")}
-            >
-              <i className="fas fa-comments"></i>
-              <span className="nav-4 links_name">Your Comments</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              className={activeSection === "user_discussion" ? "active" : ""}
-              onClick={() => openPage("user_discussion")}
-            >
-              <i className="fas fa-comment"></i>
-              <span className="nav-5 links_name">Discussion</span>
-            </a>
-          </li>
+
           <li>
             <a
               href="#"
@@ -194,16 +175,7 @@ const UserProfile = () => {
               <span className="nav-6 links_name">Teams</span>
             </a>
           </li>
-          <li>
-            <a
-              href="#"
-              className={activeSection === "user_settings" ? "active" : ""}
-              onClick={() => openPage("user_settings")}
-            >
-              <i className="fas fa-cog"></i>
-              <span className="nav-6 links_name">Settings</span>
-            </a>
-          </li>
+
           <li>
             <a href="/logout">
               <i className="fas fa-arrow-alt-circle-left"></i>
@@ -224,7 +196,13 @@ const UserProfile = () => {
             <i className="fas fa-search"></i>
           </div>
           <div className="profile-details">
-            {/* <img src={userData.avatarlink} alt="User Avatar" /> */}
+            <img
+              src="https://s3.eu-central-1.amazonaws.com/bootstrapbaymisc/blog/24_days_bootstrap/fox.jpg"
+              width="30"
+              height="30"
+              alt="avatar"
+              className="rounded-circle"
+            />
             <span className="admin_name">{userData.name}</span>
           </div>
         </nav>
@@ -306,48 +284,6 @@ const UserProfile = () => {
           <div className="container">
             <h3>Your Questions</h3>
             <Questions />
-          </div>
-        </div>
-
-        <div
-          className={`home-content Right-bar ${
-            activeSection === "user_comments" ? "" : "d-none"
-          }`}
-          id="user_comments"
-        >
-          <div className="container">
-            <h3>Comments</h3>
-            <div className="row container">
-              <div className="col-10 container"></div>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={`home-content Right-bar ${
-            activeSection === "user_discussion" ? "" : "d-none"
-          }`}
-          id="user_discussion"
-        >
-          <div className="container">
-            <h3>Discussion</h3>
-            <div className="row container">
-              <div className="col-10 container"></div>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={`home-content Right-bar ${
-            activeSection === "user_teams" ? "" : "d-none"
-          }`}
-          id="user_teams"
-        >
-          <div className="container">
-            <h3>Teams</h3>
-            <div className="row container">
-              <div className="col-10 container"></div>
-            </div>
           </div>
         </div>
 

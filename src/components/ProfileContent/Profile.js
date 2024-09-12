@@ -40,11 +40,7 @@ const Profileinlarge1 = () => {
               Profile
             </a>
           </li>
-          <li>
-            <a className="dropdown-item" href="/questions">
-              My Questions
-            </a>
-          </li>
+
           <li>
             <a className="dropdown-item" onClick={handleLogOut}>
               Logout

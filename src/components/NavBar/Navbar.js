@@ -252,7 +252,7 @@ const Navbar = (props) => {
         <div class="container-fluid">
           <div class="navbar-brand d-flex" style={{ fontWeight: "400" }}>
             <a href="/home" style={{ textDecoration: "none" }}>
-              <i class="fab fa-stack-overflow"></i>&nbsp;AskOverflow
+              <i class="fab fa-stack-overflow"></i>&nbsp;SPOT
             </a>
           </div>
           {buttonlogin}
@@ -268,26 +268,6 @@ const Navbar = (props) => {
             class="collapse navbar-collapse justify-content-between"
             id="navbarCollapse"
           >
-            <div class="nav-item dropdown">
-              <a
-                href="#items-navbar"
-                class="nav-link dropdown-toggle"
-                data-bs-toggle="dropdown"
-              >
-                Products
-              </a>
-              <div class="dropdown-menu">
-                <a href="#items-navbar" class="dropdown-item">
-                  StackExchange
-                </a>
-                <a href="#items-navbar" class="dropdown-item">
-                  Community Forum
-                </a>
-                <a href="#items-navbar" class="dropdown-item">
-                  Code Editor
-                </a>
-              </div>
-            </div>
             &nbsp;
             <div class="d-flex">
               <input
@@ -496,42 +476,7 @@ const Navbar = (props) => {
               </a>
             </li>
             <li class="nav-item d-flex mx-auto">{trophyandquestionsmall}</li>
-            <li class="dropdown mx-auto">
-              <a
-                href="#navlinksnew"
-                class="nav-link dropdown-toggle  text-truncate"
-                id="dropdown"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                <i class="fas fa-sitemap"></i>
-                <span class="ms-1">Products</span>
-              </a>
-              <ul
-                class="dropdown-menu text-small shadow"
-                aria-labelledby="dropdown"
-              >
-                <li>
-                  <a class="dropdown-item" href="#navlinksnew">
-                    StackExchange
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item" href="#navlinksnew">
-                    Community Forum
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item" href="#navlinksnew">
-                    Code Editor
-                  </a>
-                </li>
-                {/*<li>
-                        <hr class="dropdown-divider"/>
-                    </li>
-                    <li><a class="dropdown-item" href="navlinksnew">Sign out</a></li>*/}
-              </ul>
-            </li>
+
             <li class="mx-auto">
               <Profileinlarge1 />
             </li>
